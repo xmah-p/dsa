@@ -293,13 +293,40 @@ digraph {
 }
 ```
 
-循环双链表中，`tail` 就是 `head->prev`。连起来之后**所有结点都等价了**，自然就不会再有特判。
-只需要修改构造函数即可：
+循环双链表中，`tail` 就是 `head`。连起来之后**所有结点都等价了**，自然就不会再有特判。
+
+修改构造函数和析构函数：
 ```c++
     MyCircDLL() {
         head = new Node(0);    // 头结点
         head->next = head->prev = head;  // 自己连自己
     }
+
+    ~MyCircDLL() {
+        Node* p = head;
+        while (size-- != -1) {    // 条件不能用 while(p) 因为是循环的
+            Node* q = p;
+            p = p->next;
+            delete q;
+        }
+    }
+```
+
+**注意 `getNode` 的变化**：
+```c++
+Node* getNode(int pos) {
+    checkLegalPos(pos);
+    Node* p = head;    // 和双哨兵结点的不同在于 head 既是前哨兵又是后哨兵
+
+    if (pos + pos < size) {
+        while (pos-- != -1) p = p->next;  // 注意条件
+    }
+    else {
+        while (pos++ != size) p = p->prev;  // 两个条件对称
+    }
+    return p;
+}
+
 ```
 
 # 遍历二叉树
