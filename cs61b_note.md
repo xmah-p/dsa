@@ -2,6 +2,41 @@
 
 # Misc
 
+
+## 命令行
+
+`javac file` 将 `file` 编译为字节码文件 `file.class`。
+
+`java file` 运行 `file.class`。如果 `file` 文件在某个 `package` 中，则需要在 `file` 的上级目录中通过 canonical name 运行，例如 `java capers.Main`。
+
+## Git
+
+`git checkout commitID`：将 `HEAD` 切换到某个提交（进入 HEAD-detached 状态），并将仓库恢复成此提交时的状态。之后的修改不会对仓库产生影响。此时可以执行 `git checkout -b new-branch-name` 创建新的分支（在 HEAD-detached 后修改的工作区内容和暂存区状态不会改变）
+
+`git clone <remote_repo_url>`：克隆整个远程仓库，克隆后将作为 `origin` 添加到本地仓库的 `remote` 中
+
+`git remote add <remote_name> <remote_repo_url>`：在本地仓库添加一个新的远程仓库
+
+`git remote -v`：查看远程仓库
+
+`git push <remote_name> <branch_name>`：将本地修改提交到远程仓库的 `branch_name` 分支
+
+`git fetch <remote_name>`：将远程仓库的修改拉取到本地仓库的远程跟踪分支上
+
+`git merge <branch_name>`：将 `branch_name` 分支合并到当前分支
+
+`git pull <remote_name> <branch_name>`：`git fetch` + `git merge`，将远程仓库 `branch_name` 分支拉取合并到当前分支，当**没有需要合并的内容**时，发生 `Fast-forward`，此时 Git 将 `HEAD` 简单地指向 `branch_name` 分支的最新提交
+
+`git restore <file_name>`：撤销工作区中 `file_name` 的修改，恢复到暂存区的状态
+
+`git restore --staged <file_name>`：将暂存区中的 `file_name` 恢复成上一次提交的状态，如果 `file_name` 是上次提交以来的新文件，则等同于 `git rm --cached <file_name>`
+
+`git rm --cached <file_name>`：从暂存区中移除 `file_name`，停止追踪它，不删除工作区中的文件，下次提交时，此文件会在仓库中被删除（如果之前有此文件）。可以用 `git restore --staged <file_name>` 撤销
+
+`git rm <file_name>`：从暂存区中移除 `file_name`，并删除工作区中的文件
+
+
+
 ## 测试
 
 ```java
@@ -658,53 +693,13 @@ try {
 
 
 
-
-# Misc
-
-## 命令行
-
-`javac file` 将 `file` 编译为字节码文件 `file.class`。
-
-`java file` 运行 `file.class`。如果 `file` 文件在某个 `package` 中，则需要在 `file` 的上级目录中通过 canonical name 运行，例如 `java capers.Main`。
-
-## Git
-
-`git checkout commitID`：将 `HEAD` 切换到某个提交（进入 HEAD-detached 状态），并将仓库恢复成此提交时的状态。之后的修改不会对仓库产生影响。此时可以执行 `git checkout -b new-branch-name` 创建新的分支（在 HEAD-detached 后修改的工作区内容和暂存区状态不会改变）
-
-`git clone <remote_repo_url>`：克隆整个远程仓库，克隆后将作为 `origin` 添加到本地仓库的 `remote` 中
-
-`git remote add <remote_name> <remote_repo_url>`：在本地仓库添加一个新的远程仓库
-
-`git remote -v`：查看远程仓库
-
-`git push <remote_name> <branch_name>`：将本地修改提交到远程仓库的 `branch_name` 分支
-
-`git fetch <remote_name>`：将远程仓库的修改拉取到本地仓库的远程跟踪分支上
-
-`git merge <branch_name>`：将 `branch_name` 分支合并到当前分支
-
-`git pull <remote_name> <branch_name>`：`git fetch` + `git merge`，将远程仓库 `branch_name` 分支拉取合并到当前分支，当**没有需要合并的内容**时，发生 `Fast-forward`，此时 Git 将 `HEAD` 简单地指向 `branch_name` 分支的最新提交
-
-`git restore <file_name>`：撤销工作区中 `file_name` 的修改，恢复到暂存区的状态
-
-`git restore --staged <file_name>`：将暂存区中的 `file_name` 恢复成上一次提交的状态，如果 `file_name` 是上次提交以来的新文件，则等同于 `git rm --cached <file_name>`
-
-`git rm --cached <file_name>`：从暂存区中移除 `file_name`，停止追踪它，不删除工作区中的文件，下次提交时，此文件会在仓库中被删除（如果之前有此文件）。可以用 `git restore --staged <file_name>` 撤销
-
-`git rm <file_name>`：从暂存区中移除 `file_name`，并删除工作区中的文件
-
-
-
-
-# DSA
-
-## Union-Find / Disjoint Set
+# Union-Find / Disjoint Set
 
 问题：给定多组整数对作为输入，每个整数对表示两个对象。如果两个对象在同一个整数对中，则它们是连通等价的（即有自反性、对称性、传递性）。设计一个算法，从输入中过滤掉所有无意义的整数对。
 
 我们将每个整数称为一个触点（site），整数对关系称为连接（connection），连通的等价类称为分量（component）。
 
-### QuickFind
+## QuickFind
 
 ```java
 public class QuickFind implements UF {
@@ -769,7 +764,7 @@ public class QuickFind implements UF {
 在quick-find 算法中，每次 `find()` 调用只需要访问数组一次，而归并两个分量的 `union()` 操作访问数组的次数在 $(N+3)$ 到 $(2N+1)$ 之间（`union()` 调用两次 `find()`，检查 $N$ 个数组的值，改变其中 $1$ 到 $N-1$ 个值）。算法的最好情况是 $(N+3)(N-1) ~ N^2$ 次访问，最坏情况是 $(2N+1)(N-1) ~ 2N^2$ 次访问。
 
 
-### QuickUnion
+## QuickUnion
 
 优化：将 `id` 数组看作一棵树，`id[site]` 的值为 `site` 的父结点，规定根结点的父结点为自身（即 `id[root] == root`）。
 
@@ -800,7 +795,7 @@ public int find(int p) {
 改良后，`find()` 需要访问 $1$ 到 $2N+1$ 次（当然，这通常会被编译优化为常数次）数组。最坏情况发生在整个网络只有一个分量，且所有结点连成一个线性表时。
 
 
-### Weighted QuickUnion
+## Weighted QuickUnion
 
 我们会发现，算法的好坏取决于**树的高度**，只要使树的高度尽可能矮，算法的性能就会更好。因此优化的点在于：**避免大树被连接到小树的根结点上**。
 
@@ -873,9 +868,9 @@ public class WeightedQuickUnion implements UF {
 
 
 
-## Binary Search Tree
+# Binary Search Tree
 
-### Basics
+## Basics
 
 考虑一个有序单链表，它需要线性时间才能完成 `contains()` 和 `add()` 操作：
 
@@ -940,6 +935,7 @@ public class BST<K extends Comparable<K>> {
     private K key;
     private BST left;
     private BST right;
+    private BST parent;    // just for successor()
 
     public BST(K key, BST left, BST Right) {
         this.key = key;
@@ -980,7 +976,7 @@ public class BST<K extends Comparable<K>> {
     }
 
     // return a new BST with dk deleted
-    static <K extends Comparable> BST delete(BST T, K dk) {
+    static <K extends Comparable<K>> BST delete(BST T, K dk) {
         if (T == null) return null;
 
         if (dk.compareTo(T.key) < 0) T.left = delete(T.left, dk);
@@ -1001,6 +997,25 @@ public class BST<K extends Comparable<K>> {
             T.right = delete(T.right, suc.key);  
         }
     }
+
+    static <K extends Comparable<K>> BST successor(BST T) {
+        // if T has a right child, then return the min of its right subtree
+        if (T.right != null) {
+            BST suc = T.right;
+            while (suc.left != null) suc = suc.left;
+            return suc;
+        } 
+        // otherwise return the first ancestor greater than T
+        // or null if T is the largest node
+        else {
+            BST suc = T.parent;
+            while (suc != null && suc.right == T) {
+                T = suc;
+                suc = suc.parent;
+            }
+            return suc;
+        }
+    }
 }
 ```
 
@@ -1015,7 +1030,7 @@ public class BST<K extends Comparable<K>> {
 容易发现前两种情况只是第三种情况的特例。
 
 
-#### 复杂度分析
+### 复杂度分析
 
 **树的大小**为树中的结点数。
 
@@ -1035,9 +1050,7 @@ public class BST<K extends Comparable<K>> {
 > 然而我们的 BST 仍然可能是“spindly”的，因为实践中的插入和删除经常是有顺序的
 
 
-### B Trees
-
-
+## B Trees
 
 一般 BST 的麻烦在于，我们**总是在叶结点下插入结点**，这导致树的高度增加，平衡结构也被破坏。
 
@@ -1054,7 +1067,7 @@ digraph {
 
 于是，树的高度不再增加，平衡结构得到了保持。然而我们注意到，叶结点会变得 overstuffed，退化成一个顺序单链表。
 
-为每个结点设置最多可容纳的 key 数目 $L$，当 key 数超过 $L$ 时，我们就把结点分裂成两个结点，然后把中间的元素提升到父结点中。
+为每个结点设置最多可容纳的 key 数目 $L$，当 key 数超过 $L$ 时，**我们就把结点分裂成两个结点，然后把中间的键提升到父结点中**。
 
 例如对于 $L=3$，我们的 BST 会变成这样：
 
@@ -1067,11 +1080,11 @@ digraph {
     "6    8" -> "9    10"
 }
 ```
-通过 $\text{overstuff}$ 和 $\text{splitting}$，我们让 BST 始终保持了完美的平衡。这样的树就是 **B 树**。特殊地，当 $L=2$ 时，B 树又叫 **$2$-$3$ 树**（表明每个结点可以有 $2$ 或 $3$ 个子结点）；当 $L=3$ 时，B 树就是 **$2$-$3$-$4$ 树**（每个结点可以有 $2$、$3$ 或 $4$ 个子结点）。
+通过 $\text{overstuff}$ 和 $\text{splitting}$，我们让 BST 始终保持了完美的平衡。这样的树就是 **B 树**。特殊地，当 $L=2$ 时，B 树又叫 **2-3 树**（表明每个结点可以有 $2$ 或 $3$ 个子结点）；当 $L=3$ 时，B 树就是 **2-3-4 树**（每个结点可以有 2、3 或 4 个子结点）。
 
 B 树的 $\text{invariants}$：
 - **所有叶结点的深度相同**
-- 每一个有 $k$ 个 $\text{key}$ 的非叶结点都一定有 $k+1$ 个子结点
+- **每一个有 $k$ 个 $\text{key}$ 的非叶结点都一定有 $k+1$ 个子结点**
 
 这两条 $\text{invariants}$ 保证了 B 树永远是 bushy 的，其高度 $H=O(\lg N)$，插入和查找的复杂度都是 $O(\lg N)$。
 
@@ -1079,88 +1092,946 @@ B 树的 $\text{invariants}$：
 
 
 
-### BST Map
+## BST Map
 
 ```java
-public class BST<K extends Comparable<K>, V> {
-    private Node root;
-    
-    private class Node {
-        private K key;
-        private V val;
-        private Node left, right;
-        private int N;  // amount of nodes in subtree
+public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
-        public Node(K key, V val, int N) {
-            this.key = key;
-            this.val = val;
-            this.N = N;
+    Node root;
+
+    public BSTMap() {
+
+    }
+
+    @Override
+    public void clear() {
+        root = null;
+    }
+
+    @Override
+    public boolean containsKey(K key) {
+        return containsKey(root, key);
+    }
+
+    private boolean containsKey(Node n, K key) {
+        if (n == null) return false;
+        int cmp = key.compareTo(n.key);
+        if (cmp < 0) return containsKey(n.left, key);
+        else if (cmp > 0) return containsKey(n.right, key);
+        return true;
+    }
+
+    @Override
+    public V get(K key) {
+        return get(root, key);
+    }
+
+    private V get(Node n, K key) {
+        if (n == null) return null;
+        int cmp = key.compareTo(n.key);
+        if (cmp < 0) return get(n.left, key);
+        if (cmp > 0) return get(n.right, key);
+        return n.val;
+    }
+
+    @Override
+    public int size() {
+        return size(root);
+    }
+
+    private int size(Node n) {
+        return n == null ? 0 : n.size;
+    }
+
+    @Override
+    public void put(K key, V value) {
+        root = put(root, key, value);
+    }
+
+    private Node put(Node n, K key, V value) {
+        if (n == null) return new Node(key, value, 1);
+        int cmp = key.compareTo(n.key);
+        if (cmp < 0) n.left = put(n.left, key, value);
+        else if (cmp > 0) n.right = put(n.right, key, value);
+        n.size = size(n.left) + size(n.right) + 1;  // 注意更新 size 的逻辑
+        return n;
+    }
+
+    public void printInOrder() {
+        printInOrder(root);
+        System.out.println();
+    }
+
+    private void printInOrder(Node n) {
+        if (n == null) return;
+        System.out.print("{ " + n.key + ", " + n.val + " }");
+        printInOrder(n.left);
+        printInOrder(n.right);
+    }
+
+    @Override
+    public Set<K> keySet() {
+        Set<K> set = new HashSet<>();
+        keySet(root, set);
+        return set;
+    }
+
+    private void keySet(Node n, Set<K> set) {
+        if (n == null) return;
+        set.add(n.key);
+        keySet(n.left, set);
+        keySet(n.right, set);
+    }
+
+    @Override
+    public V remove(K key) {
+        V ret = get(key);
+        root = remove(root, key);
+        return ret;
+    }
+
+    @Override
+    public V remove(K key, V value) {
+        V ret = get(key);
+        if (ret != value) return null;
+        root = remove(root, key);
+        return ret;
+    }
+
+    private Node remove(Node n, K key) {
+        if (n == null) return null;
+        int cmp = key.compareTo(n.key);
+        if (cmp < 0) n.left = remove(n.left, key);
+        else if (cmp > 0) n.right = remove(n.right, key);
+        else {
+            if (n.left == null) return n.right;
+            if (n.right == null) return n.left;
+
+            Node t = n.right;
+            while (t.left != null) {
+                t = t.left;
+            }
+            n.key = t.key;
+            n.val = t.val;
+            n.right = remove(n.right, t.key);
+        }
+        n.size = size(n.left) + size(n.right) + 1;
+        return n;
+    }
+
+    @Override
+    public Iterator<K> iterator() {
+        throw new UnsupportedOperationException();
+    }
+
+    private class Node {
+        K key;
+        V val;
+        int size;
+
+        Node left, right;
+
+        Node(K k, V v, int sz) {
+            key = k;
+            val = v;
+            size = sz;
+            left = right = null;
         }
     }
+}
+```
+
+# Left-Leaning Red Black Tree
+
+
+## Rotating Trees
+
+一共有 `Catalan(N)` 个大小为 `N` 的 BST。
+
+`rotateLeft(G): Let x be the right child of G. Make G the new left child of x.`
+
+`rotateRight(G): Let x be the left child of G. Make G the new right child of x.`
+
+```dot
+digraph {
+    G -> C -> A -> B;
+    G -> P -> K -> J
+    P -> R;
+    K -> L;
+}
+```
+
+经过 `rotateLeft(G)` 后：
+
+```dot
+digraph {
+    P -> G -> C -> A -> B;
+    G -> K -> J;
+    P -> R;
+    K -> L;
+}
+```
+
+**根结点 `G` 和它的右子结点 `P` 交换位置（把 `P` 提上去），`P` 的左子树 `K` 成为 `G` 的右子树。**
+
+可以看成是暂时地“merge”了 `P` 和 `G`，然后将 `G` 下放成了左子结点。
+
+`rotateRight(P)` 可以看成是 `rotateLeft(G)` 的逆操作：**根结点 `P` 和它的左子结点 `G` 交换位置，`G` 的右子树 `K` 成为 `P` 的左子树。**
+
+```dot
+digraph {
+    1 -> 3 -> 2;
+}
+```
+
+经过 `rotateRight(3)` 和 `rotateLeft(1)` 后，我们得到了一棵平衡的 BST：
+
+```dot
+digraph {
+    2 -> 1;
+    2 -> 3;
+}
+```
+
+
+## 将 2-3 树表示为 BST
+
+显然，只有 **2-结点**（即只有两个子结点的结点）的 2-3 树本身就是一个 BST。
+
+```dot
+digraph {
+    m -> "d    f" -> b;
+    "d    f" -> e;
+    "d    f" -> g;
+    m -> o -> n;
+    o -> p;
+}
+```
+
+对于 **3-结点**，我们创建一个**红色的胶水连接**，并把**较小的 key 变成左子树**。
+
+```dot
+digraph {
+    m -> f
+    f -> d [color=red];
+    d -> b;
+    d -> e;
+    f -> g;
+    m -> o -> n;
+    o -> p;
+}
+```
+
+这样的树就是一个 **Left-Leaning Red Black Binary Search Tree（LLRB）**。
+
+**LLRB 和 2-3 树之间是一一对应的。**
+  
+如果一棵 2-3 树的高度是 $H$，那么它对应的 LLRB 的高度最多为 $H+(H+1)=2H+1$（黑连接加红连接）。
+
+- **一个结点不可能被两个红连接接触**，否则它在 2-3 树里就会对应一个 4-结点，这是不可能的
+- **每个叶结点到根结点之间的黑连接数相同，称为黑色平衡性**。因为 2-3 树的所有叶结点深度相同
+
+利用以上两个特性，可以判断 LLRB 是否有效。
+
+## 插入
+
+**插入时，用红连接**。因为 2-3 树在插入时总是将新的 key 塞进已有的叶结点。
+
+**插入导致了右红连接，将新结点的父结点左旋**。这个操作并不会体现在对应的 2-3 树上。
+
+```dot
+digraph {
+    B -> A;
+    B -> E;
+    E -> S [color=red];
+}
+```
+
+经过 `rotateLeft(E)` 后：
+
+```dot
+digraph {
+    B -> A;
+    B -> S;
+    S -> E [color=red];
+}
+```
+
+就像 2-3 树一样，插入时可能创造出“临时 4-结点”：
+
+```dot
+digraph {
+    B -> A;
+    B -> S;
+    S -> E [color=red];
+    S -> T [color=red];
+}
+```
+
+然而，连续两次向左边插入会创造出错误的临时 4-结点：
+
+```dot
+digraph {
+    B -> A;
+    B -> Z;
+    Z -> S -> E [color=red];
+}
+```
+
+我们通过 `rotateRight(Z)` 将其修正：
+
+```dot
+digraph {
+    B -> A;
+    B -> S;
+    S -> E [color=red];
+    S -> Z [color=red];
+}
+```
+
+在 2-3 树中，我们通过分裂 overstuffed 的结点，将中间的键提升到父结点中解决临时 4-结点。例如：
+
+```dot
+digraph {
+    G -> "A  B  C";
+    G -> X;
+}
+```
+
+将会变成
+
+```dot
+digraph {
+    "B  G" -> A;
+    "B  G" -> X;
+}   
+```
+
+对于 LLRB，这个操作对应于**颜色翻转**：
+
+```dot
+digraph {
+    G -> B;
+    G -> X;
+    B -> A [color=red];
+    B -> C [color=red];
+}
+```
+
+我们用 `flip(B)` 将**所有接触 B 的连接的颜色翻转**：
+
+```dot
+digraph {
+    G -> B [color=red];
+    G -> X;
+    B -> A;
+    B -> C;
+}
+```
+
+小结：
+- **插入时，用红连接**
+- **右红连接，左旋父结点**
+- **连续两个左红连接，右旋祖父结点**
+- **两个子结点都是红连接，翻转结点的颜色**
+
+**旋转和颜色翻转都是局部操作，不会影响整棵树的黑色平衡性**。
+
+![](images/红黑树3-结点插入.png)
+
+## 代码实现
+
+```java
+public class RedBlackBST<K extends Comparable<K>, V> {
+    private static final boolean RED = true;
+    private static final boolean BLACK = false;
+
+    private class Node {
+        K key;
+        V val;
+        Node left, right;
+        int size;
+        boolean color;  // color of link from parent to this node
+
+        Node(K key, V val, int size, boolean color) {
+            this.key = key;
+            this.val = val;
+            this.size = size;
+            this.color = color;
+        }
+    }
+
+    Node root;
 
     public int size() {
         return size(root);
     }
 
-    private int size(Node x) {
-        if (x == null) return 0;
-        else return x.N;
+    private int size(Node h) {
+        return h == null ? 0 : h.size;
     }
 
-    // Search
-    public V find(K key) {
-        return find(root, key);    // recursive
+    // Return true if link from parent to this node is red
+    private boolean isRed(Node x) {
+        if (x == null) return false;
+        return x.color;
     }
 
-    private V find(Node x, K key) {
-        if (x == null) return null;    // base case
-        int cmp = key.compareTo(x.key);
-
-        if (cmp < 0) return find(x.left, key);
-        else if (cmp > 0) return find(x.right, key);
-        else return x.val;
-    }
-
-    // Insert
-    public void insert(K key, V val) {
-        root = insert(root, key, val);    // recursive
-    }
-
-    private Node insert(Node n, K key, V val) {
-        if (n == null) return new Node(key, val, 1);    // base case
-        
-        int cmp = key.compareTo(n.key);
-        if (cmp < 0) n.left = insert(n.left, key, val);
-        else if (cmp > 0) n.right = insert(n.right, key, val);
-        else n.val = val;   
-        n.N = size(n.left) + size(n.right) + 1;    // update size
+    private Node rotateLeft(Node h) {
+        // rotate node
+        Node n = h.right;
+        h.right = n.left;
+        n.left = h;
+        // update size
+        h.size = size(h.left) + size(h.right) + 1;
+        n.size = size(n.left) + size(n.right) + 1;
+        // swap color
+        boolean tmp = h.color;
+        h.color = n.color;
+        n.color = tmp;
         return n;
+    }
+
+    private Node rotateRight(Node h) {
+        // rotate node
+        Node n = h.left;
+        h.left = n.right;
+        n.right = h;
+        // update size
+        h.size = size(h.left) + size(h.right) + 1;
+        n.size = size(n.left) + size(n.right) + 1;
+        // swap color
+        boolean tmp = h.color;
+        h.color = n.color;
+        n.color = tmp;
+        return n;
+    }
+
+    private void flip(Node h) {
+        h.color = !h.color;
+        h.left.color = !h.left.color;
+        h.right.color = !h.right.color;
+    }
+
+    public void put(K key, V val) {
+        root = put(root, key, val);
+        root.color = BLACK;
+    }
+
+    private Node put(Node h, K key, V val) {
+        if (h == null) return new Node(key, val, 1, RED);
+
+        int cmp = key.compareTo(h.key);
+        if (cmp < 0) h.left = put(h.left, key, val);
+        else if (cmp > 0) h.right = put(h.right, key, val);
+        else h.val = val;
+
+        if (isRed(h.right) && !isRed(h.left)) h = rotateLeft(h);
+        if (isRed(h.left) && isRed(h.left.left)) h = rotateRight(h);
+        if (isRed(h.left) && isRed(h.right)) flip(h);
+
+        h.size = size(h.left) + size(h.right) + 1;
+        return h;
     }
 }
 ```
 
+
+## 删除
+
+### 2-3-4 树的插入算法
+
+- 如果**根结点是 4-结点**，将它分裂成三个 2-结点
+- 在向下查找的过程中，**如果当前结点是 4-结点，且父结点是 2-结点或 3-结点**，将当前结点分裂为两个 2-结点，将中间的键提升到父结点中
+- 到达树底后，我们只会遇到 2-结点或 3-结点，因此可以直接插入新的键
+
+用红黑树实现此算法：
+- 将 4-结点表示成**由 3 个 2-结点组成的平衡子树**，根结点和两个子结点都用红连接相连
+- 在向下查找的过程中分裂所有 4-结点并进行颜色翻转
+- 在向上的过程中和插入操作相同，用旋转将 4-结点配平
+
+代码实现惊人地简单：只需要移动一行代码！
+
+```java
+private Node put(Node h, K key, V val) {
+    if (h == null) return new Node(key, val, 1, RED);
+   
+    if (isRed(h.left) && isRed(h.right)) flip(h);
+
+    int cmp = key.compareTo(h.key);
+    if (cmp < 0) h.left = put(h.left, key, val);
+    else if (cmp > 0) h.right = put(h.right, key, val);
+    else h.val = val;
+
+    if (isRed(h.right) && !isRed(h.left)) rotateLeft(h);
+    if (isRed(h.left) && isRed(h.left.left)) rotateRight(h);
+
+    h.size = size(h.left) + size(h.right) + 1;
+    return h;
+}
+```
+
+### 删除 2-3 树的最小键
+
+从树底的 3-结点删除键是显然的，但 2-结点不是。为了保证我们不会遇到从 2-结点删除一个键这样糟糕的事情，我们沿着左连接向下进行变换，确保当前结点不是 2-结点。
+
+
+- 如果**根结点是 2-结点且它的两个子结点都是 2-结点**，将它们合并成一个 4-结点
+- 如果**根结点和它的左子结点是 2-结点，且它的右子结点是 3-结点**，将根结点的键移至左子结点，将右子结点的最小键提升到根结点中
+
+在沿着左连接向下的过程中：
+
+- 如果当前结点的左子结点不是 2-结点，完成
+- **如果当前结点的左子结点是 2-结点，且它的兄弟结点不是 2-结点**，将它的兄弟结点中的一个键移至当前结点中
+- **如果当前结点的左子结点是 2-结点，且它的兄弟结点也是 2-结点**，将它们和它们的父结点的最小键合并成一个 4-结点
+
+最后我们会得到一个含有最小键的 3-结点或 4-结点，我们直接进行删除，然后再**回头向上分解所有临时的 4-结点**。
+
+![](images/删除2-3树最小键.png)
+
+### 删除红黑树的最小键
+
+首先，如果根结点的左子结点是 2-结点，将根结点设为红色。
+
+当前结点是 2-结点且它的两个子结点都是 2-结点：
+
+```dot
+digraph {
+    b [color=red]
+    b -> a;
+    b -> c;
+}
+```
+
+对 `b` 做一次颜色翻转：
+
+```dot
+digraph {
+    b -> a [color=red];
+    b -> c [color=red];
+}
+```
+
+当前结点和它的左子结点是 2-结点，且它的右子结点是 3-结点：
+
+```dot
+digraph {
+    b [color=red];
+    b -> a;
+    b -> d;
+    d -> c [color=red];
+    d -> e;
+}
+```
+
+颜色翻转 `b`，右旋 `d`，左旋 `b`，颜色翻转 `b`：
+
+```dot
+digraph {
+    c [color=red];
+    c -> b;
+    c -> d;
+    b -> a [color=red];
+    d -> e;
+}
+```
+
+Shamelessly stolen from [here](https://algs4.cs.princeton.edu/33balanced/RedBlackBST.java.html)
+
+
+```java
+public void deleteMin() {
+    if (!isRed(root.left) && !isRed(root.right))
+        root.color = RED;
+    root = deleteMin(root);
+    if (!isEmpty())
+        root.color = BLACK;
+}
+
+private Node deleteMin(Node h) {
+    if (h.left == null)
+        return null;    // delete 
+
+    if (!isRed(h.left) && !isRed(h.left.left))  // left child is 2-node
+        h = moveRedLeft(h);
+
+    h.left = deleteMin(h.left);
+    return balance(h);
+}
+
+private Node balance(Node h) {
+    if (isRed(h.right) && !isRed(h.left))
+        h = rotateLeft(h);    
+    if (isRed(h.left) && isRed(h.left.left))
+        h = rotateRight(h);
+    if (isRed(h.left) && isRed(h.right))
+        flip(h);
+
+    h.size = size(h.left) + size(h.right) + 1;
+    return h;
+}
+
+private Node moveRedLeft(Node h) {
+    // Assume h.color == RED &&
+    // h.left.color == h.left.left.color == BLACK, 
+    // i.e., h is a 3-node and h.left is a 2-node
+    flip(h);
+    if (isRed(h.right.left)) {
+        h.right = rotateRight(h.right);
+        h = rotateLeft(h);
+        flip(h);
+    }
+    return h;
+}
+```
+
+方法 `moveRedLeft(h)` 确保 `h.left` 成为 3-结点或 4-结点。
+
+### 删除任意结点
+
+删除最大值的算法：
+
+```java
+private Node moveRedRight(Node h) {
+    // Assume h.color == RED &&
+    // h.right.color == h.right.left.color == BLACK, 
+    // i.e., h is a 3-node and h.right is a 2-node
+    flip(h);
+    if (isRed(h.left.left)) {  // h.left is a 3-node
+        h = rotateRight(h);
+        flip(h);
+    }
+    return h;
+}
+
+public void deleteMax() {
+    if (!isRed(root.left) && !isRed(root.right))
+        root.color = RED;
+    
+    root = deleteMax(root);
+    if (!isEmpty())
+        root.color = BLACK;
+}
+
+private Node deleteMax(Node h) {
+    // When deleteMin, it won't happen that isRed(h.right) == true
+    // because it is a left-leaning red-black tree
+    // Without this line, balance() will fail 
+    // because we create double right red links with moveRedRight(h)
+    if (isRed(h.left))
+        h = rotateRight(h);
+    
+    if (h.right == null)
+        return null;
+    
+    if (!isRed(h.right) && !isRed(h.right.left))  // right child is 2-node
+        h = moveRedRight(h);
+    
+    h.right = deleteMax(h.right);
+    return balance(h);
+}
+```
+
+将这两种算法结合起来：
+
 ```java
 public void delete(K key) {
+    if (!contains(key)) return;
+
+    // if both children of root are black, set root to red
+    if (!isRed(root.left) && !isRed(root.right))
+        root.color = RED;
+
     root = delete(root, key);
+    if (!isEmpty()) root.color = BLACK;
 }
 
-private Node delete(Node n, K key) {
-    if (n == null) return null;    // base case
+private Node delete(Node h, K key) {
+    // Assume key is in the tree
 
-    int cmp = key.compareTo(n.key);
-    if (cmp < 0) n.left = delete(n.left, key);
-    else if (cmp > 0) n.right = delete(n.right, key);
-    else {
-        if (n.right == null) return n.left;    // no right child
-        if (n.left == null) return n.right;    // no left child
-
-        // two children
-        Node t = n;
-        n = min(t.right);    // find successor
-        n.right = deleteMin(t.right);    // delete successor
-        n.left = t.left;
+    if (key.compareTo(h.key) < 0)  {
+        if (!isRed(h.left) && !isRed(h.left.left))  // left child is 2-node
+            h = moveRedLeft(h);  // make h.left 3-node
+        h.left = delete(h.left, key);
     }
+    else {
+        if (isRed(h.left))
+            h = rotateRight(h);
+
+        if (key.compareTo(h.key) == 0 && (h.right == null))
+            return null;  // if h.right == null, then h is a red leaf node, safe to delete
+
+        if (!isRed(h.right) && !isRed(h.right.left))  // right child is 2-node
+            h = moveRedRight(h);
+
+        if (key.compareTo(h.key) == 0) {
+            // replace h with its successor, and delete the successor
+            Node x = h.right;
+            while (x.left != null)
+                x = x.left;
+            h.key = x.key;
+            h.val = x.val;
+            h.right = deleteMin(h.right);
+        }
+        else h.right = delete(h.right, key);
+    }
+    return balance(h);
 }
-``````
+```
+
+# Red Black Tree
+
+红黑性质：
+- 结点是红色或黑色的
+- 根结点是黑色的
+- 叶结点（`NIL`）是黑色的
+- 如果一个结点是红色的，那么它的两个子结点都是黑色的
+- 对每个结点，从该结点到其所有后代叶结点的简单路径上，均包含相同数目的黑色结点
+
+对红黑树 `T`，其哨兵 `T.nil` 代表了此红黑树的所有叶结点（不同于上一章的定义，此处的叶结点指空结点）。`T.nil` 的 `color` 字段为 `BLACK`，其他字段的取值任意。根结点的父结点也是 `T.nil`。
+
+定义从某个结点 `x` 出发（不含此结点）到一个**叶结点**的任意简单路径上的黑色结点数目为结点 `x` 的**黑高（black-height）**，记作 `bh(x)`。
+
+```py
+def LEFT-ROTATE(T, x):
+    y = x.right
+    # turn y's left subtree into x's right subtree
+    x.right = y.left
+    if y.left != T.nil:
+        y.left.p = x
+    # link x's parent and y
+    y.p = x.p
+    if x.p == T.nil:
+        T.root = y
+    elif x == x.p.left:
+        x.p.left = y
+    else:
+        x.p.right = y
+    # put x on y's left
+    y.left = x
+    x.p = y
+```
+
+```py
+def RB-INSERT(T, z):
+    y = T.nil
+    x = T.root
+    while x != T.nil:
+        y = x
+        if z.key < x.key:
+            x = x.left
+        else:
+            x = x.right
+    # link y and z
+    z.p = y
+    if y == T.nil:
+        T.root = z
+    elif z.key < y.key:
+        y.left = z
+    else:
+        y.right = z
+    z.left = T.nil
+    z.right = T.nil
+    z.color = RED
+    RB-INSERT-FIXUP(T, z)
+
+def RB-INSERT-FIXUP(T, z):
+    while z.p.color == RED:
+        # z.p is left child
+        if z.p == z.p.p.left:
+            y = z.p.p.right
+
+            # case 1: 
+            #           z.p.p(BLACK)
+            #           /       \
+            #      z.p(RED)     y(RED)
+            #      /        \
+            # T.nil/z(RED)  z(RED)/T.nil
+            if y.color == RED:
+                # flip(z.p.p)
+                z.p.color = BLACK
+                y.color = BLACK
+                z.p.p.color = RED
+                z = z.p.p
+
+            # case 2
+            #           z.p.p(BLACK)
+            #           /       \
+            #      z.p(RED)     y(BLACK)
+            #      /        \
+            #   T.nil      z(RED)
+            elif z == z.p.right:
+                z = z.p
+                LEFT-ROTATE(T, z)
+
+            # case 3
+            #           z.p.p(BLACK)
+            #           /       \
+            #      z.p(RED)     y(BLACK)
+            #      /        \
+            #   z(RED)      T.nil
+            z.p.color = BLACK
+            z.p.p.color = RED
+            RIGHT-ROTATE(T, z.p.p)
+        else:
+            y = z.p.p.left
+            if y.color == RED:
+                z.p.color = BLACK
+                y.color = BLACK
+                z.p.p.color = RED
+                z = z.p.p
+            elif z == z.p.left:
+                z = z.p
+                RIGHT-ROTATE(T, z)
+            z.p.color = BLACK
+            z.p.p.color = RED
+            LEFT-ROTATE(T, z.p.p)
+    T.root.color = BLACK
+```
+
+在调用 `RB-INSERT-FIXUP` 时，可能被破坏的红黑性质只有**性质 2**（根结点为黑色）和**性质 4**（红结点的子结点为黑色）。
+
+在 `while` 循环内，以下不变式始终成立：
+- `z` 是红结点
+- 若 `z.p` 是根结点，则 `z.p` 是黑结点
+- 至多只有一条红黑性质被破坏：要么性质 2，要么性质 4。如果性质 2 被破坏，其原因为 `z` 是根结点且是红结点。如果性质 4 被破坏，其原因为 `z.p` 和 `z` 都是红结点
 
 
+```py
+# replace u with v
+def RB-TRANSPLANT(T, u, v):
+    # link v to u.p
+    if u.p == T.nil:
+        T.root = v
+    elif u == u.p.left:
+        u.p.left = v
+    else:
+        u.p.right = v
+    # link u.p to v
+    v.p = u.p
+```
+
+```py
+def RB-DELETE(T, z):
+    y = z
+    y-original-color = y.color
+    if z.left == T.nil:
+        x = z.right
+        RB-TRANSPLANT(T, z, z.right)
+    elif z.right == T.nil:
+        x = z.left
+        RB-TRANSPLANT(T, z, z.left)
+    else:
+        y = TREE-MINIMUM(z.right)  # y is z's successor
+        y-original-color = y.color
+        x = y.right
+        if y.p == z:
+            x.p = y
+        else:
+            RB-TRANSPLANT(T, y, y.right) # delete y
+            # y takes over z's right child
+            y.right = z.right
+            y.right.p = y
+        # replace z with y
+        # y takes over z's left child
+        RB-TRANSPLANT(T, z, y)
+        y.left = z.left
+        y.left.p = y
+        y.color = z.color
+    if y-original-color == BLACK:
+        RB-DELETE-FIXUP(T, x) 
+        # x is the node that takes over y's original position: nil or y.right
+```
+
+- 始终维持 `y` 为从树中删除的结点或移至树内的结点
+- 如果 `y-original-color` 是黑色的，那么红黑树的红黑性质可能被破坏，此时调用 `RB-DELETE-FIXUP` 来恢复性质
+    - 如果 `y` 是原来的根结点，而 `y` 的红色孩子成为了新的根结点，那么性质 2 被破坏
+    - 如果 `x` 和 `x.p` 是红色的，则性质 4 被破坏
+    - 在树中删除 `y` 导致先前包含 `y` 的任何简单路径上黑结点数少 1，因此 `y` 的任何祖先不满足性质 5。我们通过将现在接管 `y` 位置的结点 `x` 染上**第二重黑色**来解决此问题（这一重黑色不反映在 `x.color`）。从而问题转换为结点 `x` 违反性质 1。
+    - 性质 5 将在整个过程中得到保护。
+
+
+```py
+def RB-DELETE-FIXUP(T, x):
+    while x != T.root and x.color == BLACK:
+        if x == x.p.left:
+            w = x.p.right    # w is x's sibling
+            # w can't be nil because x is double black
+
+            # case 1
+            #          x.p(BLACK)
+            #          /       \
+            #     x(D_BLACK)     w(RED)
+            #                   /    \
+            #             w.left    w.right        
+            if w.color == RED:
+                # This forces w.left and w.right to be black
+                # We escape to case 2, 3 or 4
+                # Rotate x.p to the left
+                w.color = BLACK
+                x.p.color = RED
+                LEFT-ROTATE(T, x.p)
+                w = x.p.right
+            
+            # case 2
+            #         x.p(RED/BLACK)
+            #         /       \
+            #    x(D_BLACK)     w(BLACK)
+            #                  /       \
+            #            w.left(BLACK)  w.right(BLACK)
+            if w.left.color == BLACK and w.right.color == BLACK:
+                # Remove one black from both x and w
+                # Add one black to x.p
+                w.color = RED
+                x = x.p
+            
+            # case 3
+            #         x.p(RED/BLACK)
+            #         /       \
+            #    x(D_BLACK)     w(BLACK)
+            #                  /       \
+            #            w.left(RED)  w.right(BLACK)
+            elif w.right.color == BLACK:
+                # Rotate w to the right
+                # Escape to case 4
+                w.color = RED
+                RIGHT-ROTATE(T, w)
+                w = x.p.right
+
+            # case 4
+            #         x.p(RED/BLACK)
+            #         /       \
+            #    x(D_BLACK)     w(BLACK)
+            #                   /        \
+            #       w.left(RED/BLACK)  w.right(RED)
+            # Rotate x.p to the left
+            w.color = x.p.color
+            x.p.color = BLACK
+            w.right.color = BLACK
+            LEFT-ROTATE(T, x.p)
+            x = T.root
+
+        else:
+            w = x.p.left
+            if w.color == RED:
+                w.color = BLACK
+                x.p.color = RED
+                RIGHT-ROTATE(T, x.p)
+                w = x.p.left
+            if w.right.color == BLACK and w.left.color == BLACK:
+                w.color = RED
+                x = x.p
+            elif w.left.color == BLACK:
+                w.right.color = BLACK
+                w.color = RED
+                LEFT-ROTATE(T, w)
+                w = x.p.left
+            w.color = x.p.color
+            x.p.color = BLACK
+            w.left.color = BLACK
+            RIGHT-ROTATE(T, x.p)
+            x = T.root
+    x.color = BLACK
+```
+
+只有情况 2 会导致 `while` 循环重复执行。
