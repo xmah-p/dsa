@@ -2,15 +2,17 @@
 
 # Misc
 
+数据结构：涉及数据之间的逻辑关系、在计算机的存储表示和在这种结构上的一组操作。
+
 ## 数据的逻辑结构
 
-数据的逻辑结构可以用二元组 $B = (K,R)$ 表示。其中 $K$ 是数据结点的集合，$R$ 是 $K$ 上的二元关系集合。$K$ 上的二元组是 $K$ 中元素的有序对，记作 $< k, k' >$.
+数据的逻辑结构可以用二元组 $B = (K,R)$ 表示。其中 $K$ 是数据结点的集合，$R$ 是 $K$ 上的二元关系集合。$K$ 上的二元组是 $K$ 中元素的有序对，记作 $\langle k, k' \rangle$.
 
-若 $r \in R$，$k, k' \in K, < k, k'> \in r$，则称 $k$ 是 $k'$ 在关系 $r$ 上的**前驱**，$k'$ 是 $k$ 在关系 $r$ 上的**后继**。没有前驱的结点称作开始节点，没有后继的结点称作终止结点。
+若 $r \in R$，$k, k' \in K, \langle k, k'\rangle \in r$，则称 $k$ 是 $k'$ 在关系 $r$ 上的**前驱**，$k'$ 是 $k$ 在关系 $r$ 上的**后继**。没有前驱的结点称作开始节点，没有后继的结点称作终止结点。
 
 ## 数据的存储结构
 
-逻辑结构 $(K,r)$ 的存储结构就是建立一种**由逻辑结构到物理存储空间的映射**：$k$ 映射为一段连续的内存空间，关系元组 $<k_i,k_j> \in r$ 映射为存储单元的地址关系（顺序关系或指针指向关系）。 
+逻辑结构 $(K,r)$ 的存储结构就是建立一种**由逻辑结构到物理存储空间的映射**：$k$ 映射为一段连续的内存空间，关系元组 $\langle k_i,k_j\rangle \in r$ 映射为存储单元的地址关系（顺序关系或指针指向关系）。 
 
 常用的基本存储映射方法：
 - 顺序
@@ -47,10 +49,10 @@ $\Theta$ 表示法：若 $\exists c_1, c_2, N > 0, \forall n \geq N, c_1g(n) \le
 $$
 K=\{k_0, k_1, \cdots, k_{n-1}\} \\
 R={r} \\
-r=\{<k_i, k_{i+1}> | 0 \leq i \leq n-2\}
+r=\{\langle k_i, k_{i+1}\rangle  | 0 \leq i \leq n-2\}
 $$
 
-线性关系 $r$ 刻画了元素之间的前驱 / 后继关系。
+线性关系 $r$ 刻画了元素之间的前驱 / 后继关系，满足**全序性**（所有结点都可两两比较前后）和**单索性**（每个非首尾结点都存在唯一前驱和后继）
 
 存储结构：
 - 顺序表：定长、顺序存储（数组）
@@ -327,161 +329,4 @@ Node* getNode(int pos) {
     return p;
 }
 
-```
-
-# 遍历二叉树
-
-## 前序遍历
-
-递归遍历：
-
-```c++
-class TreeNode {
-   public:
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode* left, TreeNode* right)
-        : val(x), left(left), right(right) {}
-};
-
-class Solution {
-   public:
-    vector<int> ans;
-    void dfs(TreeNode* now) {
-        if (now) {
-            // 顺序：根->左->右
-            // 改变以下三行的顺序即可实现中序遍历和后序遍历
-            ans.push_back(now->val);
-            dfs(now->left);
-            dfs(now->right);
-        }
-    }
-    vector<int> preorderTraversal(TreeNode* root) {
-        dfs(root);
-        return ans;
-    }
-};
-```
-
-非递归遍历：栈
-
-```c++
-// 二叉树定义略去
-class Solution {
-   public:
-    vector<int> preorderTraversal(TreeNode* root) {
-        stack<TreeNode*> stack;
-        vector<int> results;
-        if (root == NULL)
-            return results;
-
-        stack.push(root);
-
-        while (!stack.empty()) {
-            TreeNode* node = stack.top();
-            stack.pop();                   // 出栈 
-            results.push_back(node->val);
-            if (node->right)
-                stack.push(node->right);
-            if (node->left)
-                stack.push(node->left);
-        }
-        return results;
-    }
-};
-```
-
-## 中序遍历
-
-非递归遍历：
-
-```c++
-class Solution {
-public:
-    vector<int> inorderTraversal(TreeNode* root) {
-        vector<int> results;
-        stack<TreeNode*> stack;
-        TreeNode* now = root;
-
-        while (now != nullptr || !stack.empty()) {
-            // 向左搜到底 并压栈
-            while (now != nullptr) {
-                stack.push(now);
-                now = now->left;
-            }
-
-            now = stack.top();
-            stack.pop();
-            results.push_back(now->val);
-            now = now->right;  // 若为nullptr 则下次循环通过top()获得根节点
-        }
-        return results;
-    }
-};
-```
-
-## 后序遍历
-
-非递归遍历：
-
-```c++
-vector<int> postorderTraversal(TreeNode* root) {
-       TreeNode* p = root;
-       vector<int> ret;
-       stack<TreeNode*> s1;
-       stack<TreeNode*> s2;
-       if(p!=nullptr){
-           s1.push(p);      // 头结点先压入s1中
-       }
-       while(!s1.empty()){
-           p = s1.top();		// 每次从s1中弹出一个结点
-           s1.pop();			// 弹出的结点压入s2中
-           s2.push(p);
-
-           if(p->left != nullptr){      // 先压左
-               s1.push(p->left);
-           }
-           if(p->right != nullptr){
-               s1.push(p->right);       // 再压右
-           }
-       }
-
-       // 这样s1的顺序就是 根右左，s2的顺序就是左右根
-       while( !s2.empty() ){
-           ret.push_back(s2.top()->val);
-           s2.pop();
-       }
-       return ret;
-    }
-```
-
-更简单的办法：注意到后序遍历的结果恰好是按先右后左前序遍历的倒序。
-
-```c++
-class Solution {
-   public:
-    vector<int> preorderTraversal(TreeNode* root) {
-        stack<TreeNode*> stack;
-        vector<int> results;
-        if (root == NULL)
-            return results;
-
-        stack.push(root);
-
-        while (!stack.empty()) {
-            TreeNode* node = stack.top();
-            stack.pop();                   // 出栈 
-            results.push_back(node->val);
-            if (node->left)
-                stack.push(node->left);
-            if (node->right)
-                stack.push(node->right);
-        }
-        reverse(results.begin(), results.end());
-        return results;
-    }
-};
 ```

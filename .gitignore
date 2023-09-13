@@ -2,3 +2,6 @@
 往年题
 t.cpp
 *.pdf
+oj/C*
+*.out
+*.exe

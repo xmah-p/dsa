@@ -2035,3 +2035,188 @@ def RB-DELETE-FIXUP(T, x):
 ```
 
 只有情况 2 会导致 `while` 循环重复执行。
+
+
+# Hash Table
+
+## 散列函数
+
+### 正整数：除留余数法
+
+选择大小为 `M` 的数组，对于任意正整数 `k`，计算 `k % M`，将结果作为数组的索引。`M` 最好取素数，以使结果更分散。
+
+### 浮点数
+
+如果键是 0 到 1 之间的实数，可以将它乘 `M` 并四舍五入到一个 `0` 到 `M-1` 的索引值。但这种方法有一定缺陷：键的高位对结果影响大，低位对结果几乎没影响。我们可以将键表示为二进制数再使用除留余数法解决这个问题。
+
+### 字符串
+
+```java
+int hash = 0;
+for (int i = 0; i < s.length(); i++) 
+    hash = (R * hash + s.charAt(i)) % M;
+    // charAt() 返回一个 16 位非负整数
+```
+
+如果 `R` 比任何字符的值都大，这种计算相当于将字符串当作一个 `N` 位的 `R` 进制数，对这个数做除留余数法。
+
+#### 秦九韶算法
+
+秦久韶算法可以高效计算多项式函数在某一点的值。
+
+设需要求 $n+1$ 次多项式函数 $f(x)=a_nx^n + a_{n-1}x^{n-1} + \cdots + a_1x + a_0$ 在 $x=x_0$ 处的值，我们递归地对前 $k=n, n-1, \cdots, 1, 0$ 项提取公因式 $x$，得 $f(x)=((\cdots((a_nx + a_{n-1})x + a_{n-2})x + \cdots)x + a_1)x + a_0$，然后从内到外计算。
+
+```java
+int hash = s.charAt(s.length() - 1);
+// 此时 x0 = R, ak = s.charAt(k)
+for (int i = 1; i < s.length(); i++) 
+    hash = (R * hash + s.charAt(n - i - 1)) % M;
+```
+
+### Java 的约定
+
+Java 约定，如果 `a.equals(b)`，那么 `a.hashCode() == b.hashCode()`，但如果 `a.hashCode() == b.hashCode()`，则不一定有 `a.equals(b)`。**如果我们重写了 `hashcode()` 方法，我们就必须同时重写 `equals()` 方法**。默认的 `hashcode()` 方法返回对象的内存地址，但 Java 为常用的数据类型重写了 `hashcode()` 方法，如 `String`、`Integer`、`Double`、`File`、`URL` 等。
+
+```java
+private int hash(Key x) {
+    // 屏蔽符号位并除留余数
+    return (x.hashCode() & 0x7fffffff) % M;
+}
+```
+
+### 软缓存
+
+通过一个 `hash` 变量保存 `hashCode()` 的返回值，减少重复计算。
+
+## 基于拉链法的散列表
+
+将大小为 `M` 的数组中每个元素指向一条**链表**。
+
+```java
+public class SeparateChainingHashST<K, V> {
+    private int N;    // number of key-value pairs
+    private int M;    // hash table size
+    private SequentialSearchST<K, V> st;    // array stores linked lists
+
+    public SeparateChainingHashST() {
+        this(997);
+    }
+
+    public SeparateChainingHashST(int M) {
+        // Create M linked lists.
+        this.M = M;
+        st = (SequentialSearchST<K, V>[]) new SequentialSearchST[M];
+        for (int i = 0; i < M; i++)
+            st[i] = new SequentialSearchST<K, V>();
+    }
+
+    private int hash(K key) {
+        return (key.hashCode() & 0x7fffffff) % M;
+    }
+
+    public V get(K key) {
+        return (V) st[hash(key)].get(key);
+    }
+
+    public void put(K key, V val) {
+        st[hash(key)].put(key, val);
+    }
+}
+```
+
+我们可以通过动态调整数组大小来保证链表短小。
+
+
+## 基于线性探测法的散列表
+
+用大小为 `M` 的数组保存 `N` 个键值对，保证 `M > N`。我们用数组中的**空位**解决碰撞。依靠空位解决冲突的方法称为**开放地址散列表**。
+
+即，插入时如果发生冲突，则顺延至从冲突位置开始的第一个空位插入。查找时从哈希码对应的位置起顺序查找，直到找到对应的键或遇到空位。线性探测可能有三种结果：
+- 命中：找到对应的键
+- 未命中：键为空
+- 继续查找：键不为空，但不是我们要找的键
+
+```java
+public class LinearProbingHashST<K, V> {
+    private int N;         // number of key-value pairs in the table
+    private int M = 16;    // hash table size
+    private K[] keys;      
+    private V[] vals;      
+
+    public LinearProbingHashST() {
+        keys = (K[]) new Object[M];
+        vals = (V[]) new Object[M];
+    }
+
+    public LinearProbingHashST(int cap) {
+        M = cap;
+        keys = (K[]) new Object[M];
+        vals = (V[]) new Object[M];
+    }
+
+    private int hash(K key) {
+        return (key.hashCode() & 0x7fffffff) % M;
+    }
+
+    private void resize(int cap) {
+        LinearProbingHashST<K, V> t;
+        t = new LinearProbingHashST<K, V>(cap);
+        for (int i = 0; i < M; i++)
+            if (keys[i] != null)
+                t.put(keys[i], vals[i]);
+        keys = t.keys;
+        vals = t.vals;
+        M = t.M;
+    }
+
+    public void put(K key, V val) {
+        if (N >= M / 2) resize(2 * M);    // double M (see text)
+        int i;
+        for (i = hash(key); keys[i] != null; i = (i + 1) % M)
+            if (keys[i].equals(key)) {
+                vals[i] = val;    // update
+                return;
+            }
+        keys[i] = key;
+        vals[i] = val;
+        N++;
+    }
+
+    public V get(K key) {
+        for (int i = hash(key); keys[i] != null; i = (i + 1) % M)
+            if (keys[i].equals(key))
+                return vals[i];
+        return null;
+    }
+
+    public void delete(K key) {
+        if (!containsKey(key)) return;
+
+        int i = hash(key);
+        while (!key.equals(keys[i]))
+            i = (i + 1) % M;
+
+        keys[i] = null;
+        vals[i] = null;
+
+        // move all non-null key-value pairs after i one position forward
+        i = (i + 1) % M;
+        while (keys[i] != null) {
+            K keyToRedo = keys[i];
+            V valToRedo = vals[i];
+            keys[i] = null;
+            vals[i] = null;
+            N--;
+            put(keyToRedo, valToRedo);
+            i = (i + 1) % M;
+        }
+        N--;
+        if (N > 0 && N == M / 8) resize(M / 2);
+    }
+}
+```
+
+这使得删除就变得麻烦了，我们需要**将被删除的键后面的所有键重新插入散列表**。
+
+元素在插入数组后聚成的一组连续的条目称为**键簇**。键簇越长，性能越差。**对线性探测法，调整数组大小是必需的**，因为一个较满的散列表往往有许多长键簇，性能较差，且完全满的散列表会在插入 / 查找是进入死循环。
+
