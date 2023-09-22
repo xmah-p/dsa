@@ -15,10 +15,11 @@
 逻辑结构 $(K,r)$ 的存储结构就是建立一种**由逻辑结构到物理存储空间的映射**：$k$ 映射为一段连续的内存空间，关系元组 $\langle k_i,k_j\rangle \in r$ 映射为存储单元的地址关系（顺序关系或指针指向关系）。 
 
 常用的基本存储映射方法：
-- 顺序
-- 链接
-- 索引
+- 顺序存储：结点按地址相邻关系连续存储。紧凑（除结点外无附加信息）、存储密度大。
+- 链接：利用指针指向表示结点逻辑关系
+- 索引：建立索引函数 $Y:Z\rightarrow D$ 将结点的整数索引值映射到结点的存储地址。
 - 散列
+
 
 ## 抽象数据类型
 
@@ -328,5 +329,192 @@ Node* getNode(int pos) {
     }
     return p;
 }
-
 ```
+
+# 栈与队列
+
+## 栈
+
+栈是只能在一端（栈顶）进行插入和删除的线性表，又称 LIFO 表。
+
+```c++
+template <typename T> 
+class Stack {
+public:
+    void clear();
+    bool push(const T item);
+    bool pop(T& item);
+    bool top(T& item);
+    bool isEmpty();
+    bool isFull();
+};
+```
+
+**若 k 最后出栈，则 k 把入栈元素一分为二：k 前入栈的元素在其后入栈的元素之前出栈**。
+（最后出栈 -> 入栈时，栈是空的）
+如果入栈顺序 1, 2, 3, 4，则出栈顺序不可能是 1, 4, 2, 3
+编程判定出栈序列是否合法
+给定长度为 $N$ 的入栈序列，有 $C(N)=\sum_{i=0}^{N-1}C(i)C(N-i-1)=C_{2N}^N/(N+1)$ 种出栈序列（Catalan 数）。
+
+### 顺序栈
+
+采用顺序存储结构的栈是顺序栈（array-based stack）。栈顶一般为**数组尾**。
+
+```c++
+template <typename T>
+class ArrStack : public Stack<T> {
+private:
+    T* data;      // Array
+    int top = -1;  
+    int maxSize;
+    // ...
+};
+```
+
+`top` 可以设置为**栈的第一个空闲位置**，即空栈 `top` 为 `0`；也可以设置为**栈的最后一个元素**，即空栈 `top` 为 `-1`。
+
+### 链式栈
+
+把单链表的头节点改名叫 `top`，就是链式栈（linked stack）。
+
+```c++
+template <typename T>
+class LinkedStack : public Stack<T> {
+private:
+    struct Node {
+        T data;
+        Node* next;
+    };
+
+    Node* top = nullptr;
+    int size;
+    // ...
+};
+```
+
+### 表达式求值
+
+- 基本符号集：`[0-9+-*/\(\)]`
+- 语法成分集：<表达式>、<项>、<因子>、<常数>、<数字>
+- 语法公式集：又称产生式规则，用于定义语法成分
+    - <表达式> ::= <项> + <项> | <项> - <项> | <项>
+    - <项> ::= <因子> * <因子> | <因子> / <因子> | <因子>
+    - <因子> ::= <常数> | (<表达式>)
+    - <常数> ::= <数字> | <数字><常数>
+    - <数字> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+上述为中缀表达法。
+
+后缀表达式（逆波兰表示法）：运算符在两个参与运算的语法成分的后面，**不含括号**。其语法公式：
+    - <表达式> ::= <项> <项> + | <项> <项> - | <项>
+    - <项> ::= <因子> <因子> * | <因子> <因子> / | <因子>
+    - <因子> ::= <常数>
+
+中缀表达式 `infixExp` 转换为后缀表达式 `postfixExp`，**操作数的次序保持不变，操作符的次序发生改变**。
+
+```c++
+// Convert infix expression to postfix expression
+for (int i = 0; i != 100; i++) {
+    char e = infixExp[i];
+    if (nums.constains(e)) {
+        postfixExp += ' ' + e;
+    }
+    else if (e == '(') {
+        stk.push(e);
+    } 
+    
+    else if (e == ')') {
+        if (stk.empty()) throw std::runtime_error("Invalid expression");
+        while (stk.top() != '(') {
+            postfixExp += ' ' + stk.top();
+            stk.pop();
+            if (stk.empty()) throw std::runtime_error("Invalid expression");
+        }
+        stk.pop();
+    } 
+    
+    else if (ops.constains(e)) {
+        while (true) {
+            if (!stk.empty() && stk.top() != '(' &&
+                (e == '*' || e == '/')) {
+                postfixExp += ' ' + stk.top();
+                stk.pop();
+                stk.push(e);
+            } else {
+                postfixExp += ' ' + stk.top();
+            }
+        }
+    }
+}
+
+while (!stk.empty()) {
+    if (stk.top() == '(') throw std::runtime_error("Invalid expression");
+    postfixExp += ' ' + stk.top();
+    stk.pop();
+}
+```
+
+## 队列
+
+```c++
+template <typename T>
+class Queue {
+public:
+    void clear();
+    bool enqueue(const T item);
+    bool dequeue(T& item);
+    bool front(T& item);
+    bool empty();
+    bool full();
+};
+```
+
+两个栈模拟一个队列：入栈时 `push` 到栈 `A`，出栈时，将栈 `A` 元素全部 `pop` 到栈 `B`，再 `pop` 栈 `B` 的栈顶元素，最后将栈 `B` 的元素全部 `pop` 回栈 `A`。
+### 两个队列模拟栈
+两个队列模拟一个栈：
+
+### 顺序队列
+
+顺序队列（array-based queue）
+
+如果队尾在数组尾，那么出队的时间是 $O(n)$ 的；如果在数组头，那么入队的时间是 $O(n)$ 的。
+
+我们允许首尾位置可以移动。`front` 指针指向队列的首元素，`reer` 指针指向队列的**尾后元素**。出队时，`front` 指针右移一位；入队时，`rear` 指针右移一位。
+
+然而随着时间推移，整个队列会向队尾移动，造成假溢出。解决方法是**循环队列**。
+
+判断队列为空：`front == rear`
+
+判断队列已满：`front == (rear + 1) % maxSize`（浪费一个空间）
+
+### 链式队列
+
+链式队列（linked queue）即用链表实现的队列。
+
+
+# 字符串
+
+字符串是组成元素为字符的线性表。
+
+```c++
+class String {
+private:
+    // defined by implementation
+public:
+    String();
+    String(char* cstr);
+    int length() const;
+    int empty();
+    void clear();
+    String append(const char str);
+    String concat(const char* str);
+    String copy(const char* str c, const int start);
+    String substr(const char c, const int start);
+    ~String();r);
+    String insert(const char c, const int index);
+    int find(const cha
+};
+```
+
+### 字符串的顺序存储
+

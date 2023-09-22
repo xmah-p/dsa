@@ -1,7 +1,9 @@
-.vscode
 往年题
 t.cpp
 *.pdf
 oj/C*
 *.out
 *.exe
+.*
+*.cpp
+slides
